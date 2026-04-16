@@ -24,9 +24,17 @@ if uploaded_file is not None:
     st.dataframe(df.head(), use_container_width=True)
 
     if st.button("Predict"):
-        preds = pipe.predict(df)
         result = df.copy()
-        result["prediction"] = preds
+        result["prediction"] = pipe.predict(df)
+
+        if hasattr(pipe, "predict_proba"):
+            try:
+                proba = pipe.predict_proba(df)
+                if len(proba.shape) == 2:
+                    for i in range(proba.shape[1]):
+                        result[f"prob_class_{i}"] = proba[:, i]
+            except:
+                pass
 
         st.subheader("Results")
         st.dataframe(result, use_container_width=True)
