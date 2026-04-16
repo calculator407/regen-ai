@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import joblib
@@ -14,21 +13,27 @@ pipe = load_model()
 st.title("Regen")
 st.caption("Health risk prediction app")
 
-uploaded_file = st.file_uploader("Upload a CSV", type=["csv"])
+st.write("Upload a CSV with the same feature columns used during training.")
+
+uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
-    st.write("Preview")
+
+    st.subheader("Preview")
     st.dataframe(df.head(), use_container_width=True)
 
     if st.button("Predict"):
-        pred = pipe.predict(df)
+        preds = pipe.predict(df)
         result = df.copy()
-        result["prediction"] = pred
+        result["prediction"] = preds
+
+        st.subheader("Results")
         st.dataframe(result, use_container_width=True)
+
         st.download_button(
             "Download predictions",
-            result.to_csv(index=False).encode("utf-8"),
+            data=result.to_csv(index=False).encode("utf-8"),
             file_name="regen_predictions.csv",
             mime="text/csv"
         )
